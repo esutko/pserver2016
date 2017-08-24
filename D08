@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+require 'D08'
+
+def start_server(path = File.dirname(__FILE__), handler = HTTP_Handler)
+  server = HTTP_server.new(handler, path)
+  Process.daemon
+  server.start
+end
+
+start_server('/var/www/D08')
