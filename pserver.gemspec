@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name        = 'pserver'
+  s.name        = 'pServer'
   s.version     = '0.0.0'
   s.executables << 'pserver'
   s.date        = '2017-08-23'
