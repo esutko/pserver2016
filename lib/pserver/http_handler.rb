@@ -1,6 +1,8 @@
 require 'socket'
 require 'uri'
 class HTTP_Handler
+  @@METHODS = {'GET' => true, 'HEAD' => true, 'POST' => false, 'OPTIONS' => false}
+
   def initialize(request, client, path)
     request_parts = request.split(' ')
     @method = request_parts[0]
@@ -9,6 +11,11 @@ class HTTP_Handler
     @client = client
     @path = path
     log(request)
+    
+    unless @@METHODS[@method]
+      error('400', 'invalid method')
+      return
+    end
 
     case @method
       when 'GET'
@@ -18,7 +25,7 @@ class HTTP_Handler
       when 'POST'
         do_post
       when 'OPTIONS'
-        do_delete
+        do_options
       else
         log("INVALID REQUEST #{request}!")
     end
@@ -26,8 +33,7 @@ class HTTP_Handler
 
   def do_get(path)
     local_path = to_local_path(path)
-    local_path = to_local_path('/index.html') if path == '/'
-    File.file?(local_path)
+    local_path += '/index.html' if File.file?(local_path + '/index.html')
     if File.file?(local_path)
       file = File.open(local_path)
       @client.print "HTTP/1.1 200 OK\r\n" +
@@ -36,6 +42,7 @@ class HTTP_Handler
                        "Connection: close\r\n"
       @client.print "\r\n"
       IO.copy_stream(local_path, @client)
+      file.close
     elsif Dir.exist?(local_path)
     else
       error(404, "File not found\n")
@@ -43,7 +50,11 @@ class HTTP_Handler
   end
 
   def do_head
-
+    @client.print "HTTP/1.1 200 OK\r\n" +
+                      "Content-Type: text/plain\r\n" +
+                      "Content-Length: 0\r\n" +
+                      "Connection: close\r\n"
+    @client.print "\r\n"
   end
 
   def do_post
@@ -53,7 +64,7 @@ class HTTP_Handler
   def do_options
 
   end
-  
+
   def to_local_path(path)
     (@path + '/web' + URI.unescape(path)).gsub('../', '')
   end
@@ -62,9 +73,10 @@ class HTTP_Handler
     extensions  = {
         'html'  => 'text/html',
         'css'   => 'text/css',
-        'js'    => 'tex/js',
+        'js'    => 'text/js',
         'dart'  => 'text/js',
         'txt'   => 'text/plain',
+        'png'   => 'image/png'
     }
     default = 'application/octet-stream'
     extension = path.split('.').last
