@@ -1,7 +1,4 @@
-#!/usr/bin/ruby
-require 'pserver'
-
-def start_server(path = File.dirname(__FILE__), handler = HTTP_Handler)
+def start_server(path, handler = HTTP_Handler)
   server = HTTP_server.new(handler, path)
   Process.daemon
   server.start
