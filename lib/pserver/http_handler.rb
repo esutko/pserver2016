@@ -1,7 +1,7 @@
 require 'socket'
 require 'uri'
 class HTTP_Handler
-  @@METHODS = {'GET' => true, 'HEAD' => true, 'POST' => false, 'OPTIONS' => false}
+  @METHODS = {'GET' => true, 'HEAD' => true, 'POST' => false, 'OPTIONS' => false}
 
   def initialize(request, client, path)
     request_parts = request.split(' ')
