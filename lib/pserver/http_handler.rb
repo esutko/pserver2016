@@ -17,9 +17,7 @@ class HTTP_Handler
         do_head
       when 'POST'
         do_post
-      when 'PUTS'
-        do_put
-      when 'DELETE'
+      when 'OPTIONS'
         do_delete
       else
         log("INVALID REQUEST #{request}!")
@@ -52,14 +50,10 @@ class HTTP_Handler
 
   end
 
-  def do_put
+  def do_options
 
   end
-
-  def do_delete
-
-  end
-
+  
   def to_local_path(path)
     (@path + '/web' + URI.unescape(path)).gsub('../', '')
   end
